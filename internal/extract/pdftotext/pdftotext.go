@@ -4,10 +4,16 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/rafael/lexis/internal/extract"
 )
+
+// leader matches filler runs such as the dot leaders of a table of contents or
+// index. Each character is tokenized separately by the embedding model, so a
+// long run can overflow its context window and carries no meaning anyway.
+var leader = regexp.MustCompile(`[._-]{4,}`)
 
 // Extractor extracts text from PDFs using the pdftotext CLI (poppler-utils).
 type Extractor struct{}
@@ -23,7 +29,7 @@ func (e *Extractor) Extract(_ context.Context, path string) ([]extract.Page, err
 	pages := make([]extract.Page, 0, len(raw))
 	for i, text := range raw {
 		if strings.TrimSpace(text) != "" {
-			pages = append(pages, extract.Page{Number: i + 1, Text: text})
+			pages = append(pages, extract.Page{Number: i + 1, Text: leader.ReplaceAllString(text, " ")})
 		}
 	}
 	return pages, nil
