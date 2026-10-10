@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/rafael/lexis/config"
@@ -35,12 +36,22 @@ func main() {
 			os.Exit(1)
 		}
 	case "search":
-		if len(os.Args) < 3 {
-			fmt.Fprintln(os.Stderr, "usage: lexis search \"<query>\"")
+		query, opts, err := parseSearchArgs(os.Args[2:])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			fmt.Fprintln(os.Stderr, "usage: lexis search [--source <name>] [-n <count>] \"<query>\"")
 			os.Exit(1)
 		}
-		query := strings.Join(os.Args[2:], " ")
-		if err := cmdSearch(ctx, query); err != nil {
+		if err := cmdSearch(ctx, query, opts); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+	case "chunk":
+		if len(os.Args) < 4 {
+			fmt.Fprintln(os.Stderr, "usage: lexis chunk <source> <chunk-number> [neighbors]")
+			os.Exit(1)
+		}
+		if err := cmdChunk(ctx, os.Args[2:]); err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
@@ -72,7 +83,8 @@ func main() {
 func usage() {
 	fmt.Println("usage:")
 	fmt.Println("  lexis ingest <pdf-file-or-directory>   extract, embed and store PDFs")
-	fmt.Println("  lexis search \"<query>\"                 search ingested documents")
+	fmt.Println("  lexis search [--source S] [-n N] \"<q>\"  search ingested documents")
+	fmt.Println("  lexis chunk <source> <n> [neighbors]   print one chunk and its neighbors")
 	fmt.Println("  lexis list                             list all ingested sources")
 	fmt.Println("  lexis remove <source>                  remove a source from the store")
 	fmt.Println("  lexis mcp                              start MCP server (stdio)")
@@ -120,7 +132,37 @@ func cmdIngest(ctx context.Context, path string) error {
 	return nil
 }
 
-func cmdSearch(ctx context.Context, query string) error {
+// parseSearchArgs splits the search arguments into the query and its options.
+func parseSearchArgs(args []string) (string, library.SearchOptions, error) {
+	var opts library.SearchOptions
+	var words []string
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--source", "-s", "-n", "--top-k":
+			if i+1 >= len(args) {
+				return "", opts, fmt.Errorf("%s needs a value", args[i])
+			}
+			i++
+			if args[i-1] == "--source" || args[i-1] == "-s" {
+				opts.Source = args[i]
+				continue
+			}
+			n, err := strconv.Atoi(args[i])
+			if err != nil || n < 1 {
+				return "", opts, fmt.Errorf("%s needs a positive number, got %q", args[i-1], args[i])
+			}
+			opts.TopK = n
+		default:
+			words = append(words, args[i])
+		}
+	}
+	if len(words) == 0 {
+		return "", opts, fmt.Errorf("missing query")
+	}
+	return strings.Join(words, " "), opts, nil
+}
+
+func cmdSearch(ctx context.Context, query string, opts library.SearchOptions) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -129,17 +171,49 @@ func cmdSearch(ctx context.Context, query string) error {
 	if err != nil {
 		return err
 	}
+	if opts.TopK == 0 {
+		opts.TopK = cfg.MCP.TopK
+	}
 
-	results, err := lib.Search(ctx, query, cfg.MCP.TopK)
+	hits, err := lib.Search(ctx, query, opts)
 	if err != nil {
 		return err
 	}
-	if len(results) == 0 {
+	if len(hits) == 0 {
 		fmt.Println("No relevant passages found.")
 		return nil
 	}
-	for i, r := range results {
-		fmt.Printf("[%d] Source: %s (similarity: %.2f)\n%s\n\n", i+1, r.Metadata["source"], r.Score, r.Text)
+	for i, h := range hits {
+		fmt.Printf("[%d] %s (%s)\n%s\n\n", i+1, library.Locator(h.Document), h.Match, h.Text)
+	}
+	return nil
+}
+
+func cmdChunk(ctx context.Context, args []string) error {
+	index, err := strconv.Atoi(args[1])
+	if err != nil {
+		return fmt.Errorf("chunk number must be an integer, got %q", args[1])
+	}
+	neighbors := 0
+	if len(args) > 2 {
+		if neighbors, err = strconv.Atoi(args[2]); err != nil {
+			return fmt.Errorf("neighbors must be an integer, got %q", args[2])
+		}
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	lib, err := buildLibrary(cfg)
+	if err != nil {
+		return err
+	}
+	docs, err := lib.Chunk(ctx, args[0], index, neighbors)
+	if err != nil {
+		return err
+	}
+	for _, d := range docs {
+		fmt.Printf("%s\n%s\n\n", library.Locator(d), d.Text)
 	}
 	return nil
 }

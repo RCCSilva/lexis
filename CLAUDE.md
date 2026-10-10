@@ -55,7 +55,8 @@ internal/
 
 ```
 lexis ingest <pdf-file-or-directory>   # extract, embed and store PDFs
-lexis search "<query>"                 # search from terminal
+lexis search [--source S] [-n N] "<q>" # hybrid search from terminal
+lexis chunk <source> <n> [neighbors]   # print one chunk and its neighbors
 lexis list                             # list ingested sources
 lexis remove <source>                  # remove a source
 lexis mcp                              # start MCP server (stdio)
@@ -64,3 +65,10 @@ lexis mcp                              # start MCP server (stdio)
 ## MCP
 
 Registered in `~/.claude/settings.json` under `mcpServers.lexis`. Responses include a citation enforcement instruction so Claude always cites sources inline.
+
+Tools:
+- `search_books(query, source?, top_k?)` — hybrid search (vector similarity + BM25, fused with RRF). Each result shows source, pages, chunk number and how it matched.
+- `get_chunk(source, chunk, neighbors?)` — read a chunk by number, with surrounding chunks, when a result looks cut off.
+- `list_sources()` — valid values for the `source` filter.
+
+Chunks are stored with `source`, `chunk` and `pages` (PDF page numbers, not the page numbers printed in the document) as metadata. Re-ingesting a source replaces it.
