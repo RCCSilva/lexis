@@ -1,6 +1,8 @@
 # Lexis
 
-Local search over your own documents, built for answers **with citations**. Ingest PDFs, Markdown, HTML and text; Lexis returns the passages that match a question and where each one came from (document and page or section).
+**Trust, but verify: AI answers with sources.**
+
+Lexis searches your own documents and returns the passages that answer a question, with the document and page or section each one came from. Ingest PDFs, Markdown, HTML and text.
 
 It runs on your machine, using a local embedding model through [Ollama](https://ollama.com). Use it from the command line or as an [MCP](https://modelcontextprotocol.io) server so an assistant can search and cite your documents.
 
