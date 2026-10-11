@@ -11,7 +11,11 @@ import (
 	"github.com/rafael/lexis/config"
 	"github.com/rafael/lexis/internal/chunk/word"
 	"github.com/rafael/lexis/internal/embed/ollama"
+	"github.com/rafael/lexis/internal/extract/html"
+	"github.com/rafael/lexis/internal/extract/markdown"
 	"github.com/rafael/lexis/internal/extract/pdftotext"
+	"github.com/rafael/lexis/internal/extract/router"
+	"github.com/rafael/lexis/internal/extract/text"
 	"github.com/rafael/lexis/internal/library"
 	"github.com/rafael/lexis/internal/mcp"
 	chromemstore "github.com/rafael/lexis/internal/store/chromem"
@@ -82,7 +86,8 @@ func main() {
 
 func usage() {
 	fmt.Println("usage:")
-	fmt.Println("  lexis ingest <pdf-file-or-directory>   extract, embed and store PDFs")
+	fmt.Println("  lexis ingest <file-or-directory>       extract, embed and store documents")
+	fmt.Println("                                         (" + strings.Join(extractors().Extensions(), " ") + ")")
 	fmt.Println("  lexis search [--source S] [-n N] \"<q>\"  search ingested documents")
 	fmt.Println("  lexis chunk <source> <n> [neighbors]   print one chunk and its neighbors")
 	fmt.Println("  lexis list                             list all ingested sources")
@@ -90,8 +95,17 @@ func usage() {
 	fmt.Println("  lexis mcp                              start MCP server (stdio)")
 }
 
+// extractors maps file extensions to the extractor that reads them.
+func extractors() *router.Router {
+	return router.New().
+		Handle(pdftotext.New(), ".pdf").
+		Handle(markdown.New(), ".md", ".markdown").
+		Handle(html.New(), ".html", ".htm").
+		Handle(text.New(), ".txt", ".text")
+}
+
 func buildLibrary(cfg *config.Config) (*library.Library, error) {
-	ext := pdftotext.New()
+	ext := extractors()
 	chk := word.New(cfg.Chunker.Size, cfg.Chunker.Overlap)
 	emb := ollama.New(cfg.Embedder.Model, cfg.Embedder.URL)
 	st, err := chromemstore.New(cfg.Store.Path, cfg.Embedder.Model, cfg.Embedder.URL)
@@ -111,16 +125,16 @@ func cmdIngest(ctx context.Context, path string) error {
 		return err
 	}
 
-	pdfs, err := collectPDFs(path)
+	files, err := collectFiles(path, extractors())
 	if err != nil {
 		return err
 	}
-	if len(pdfs) == 0 {
-		return fmt.Errorf("no PDF files found at %s", path)
+	if len(files) == 0 {
+		return fmt.Errorf("no supported files found at %s", path)
 	}
-	fmt.Printf("Found %d PDF(s)\n", len(pdfs))
+	fmt.Printf("Found %d file(s)\n", len(files))
 
-	for _, p := range pdfs {
+	for _, p := range files {
 		fmt.Printf("Ingesting %s ...\n", filepath.Base(p))
 		if err := lib.Ingest(ctx, p); err != nil {
 			fmt.Fprintf(os.Stderr, "  skip: %v\n", err)
@@ -269,26 +283,29 @@ func cmdMCP(ctx context.Context) error {
 	return mcp.Serve(lib, cfg.MCP.TopK, cfg.MCP.CitationEnforcement)
 }
 
-func collectPDFs(path string) ([]string, error) {
+// collectFiles returns path itself if it is a supported file, or the
+// supported files directly inside it if it is a directory.
+func collectFiles(path string, r *router.Router) ([]string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
 	if !info.IsDir() {
-		if strings.ToLower(filepath.Ext(path)) == ".pdf" {
+		if r.Supports(path) {
 			return []string{path}, nil
 		}
-		return nil, fmt.Errorf("%s is not a PDF file", path)
+		return nil, fmt.Errorf("%s: unsupported file type (supported: %s)",
+			path, strings.Join(r.Extensions(), ", "))
 	}
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
-	var pdfs []string
+	var files []string
 	for _, e := range entries {
-		if !e.IsDir() && strings.ToLower(filepath.Ext(e.Name())) == ".pdf" {
-			pdfs = append(pdfs, filepath.Join(path, e.Name()))
+		if !e.IsDir() && r.Supports(e.Name()) {
+			files = append(files, filepath.Join(path, e.Name()))
 		}
 	}
-	return pdfs, nil
+	return files, nil
 }

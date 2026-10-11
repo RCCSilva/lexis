@@ -9,7 +9,8 @@ import (
 // Chunk is a piece of text derived from one or more document pages.
 type Chunk struct {
 	Text  string
-	Pages []int // page numbers this chunk spans
+	Pages []int  // page numbers this chunk spans; empty for unpaged formats
+	Label string // section the chunk belongs to; empty for physical pages
 }
 
 // Chunker splits extracted pages into chunks suitable for embedding.

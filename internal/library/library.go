@@ -73,9 +73,10 @@ func (l *Library) Ingest(ctx context.Context, path string) error {
 			Text:   c.Text,
 			Vector: vecs[i],
 			Metadata: map[string]string{
-				"source": source,
-				"chunk":  strconv.Itoa(i),
-				"pages":  pagesLabel(c.Pages),
+				"source":  source,
+				"chunk":   strconv.Itoa(i),
+				"pages":   pagesLabel(c.Pages),
+				"section": c.Label,
 			},
 		}
 	}
@@ -99,7 +100,7 @@ type Hit struct {
 }
 
 // Search combines vector similarity with BM25 keyword matching, so both
-// paraphrased questions and literal references (e.g. "8-7-5") are found.
+// paraphrased questions and literal references (e.g. "4-2-1") are found.
 func (l *Library) Search(ctx context.Context, query string, opts SearchOptions) ([]Hit, error) {
 	topK := opts.TopK
 	if topK <= 0 {
@@ -159,9 +160,13 @@ func (l *Library) Chunk(ctx context.Context, source string, index, neighbors int
 	return docs, nil
 }
 
-// Locator describes where a chunk comes from, e.g. "rulebook, pages 34-35, chunk 42".
+// Locator describes where a chunk comes from, e.g. "manual, pages 34-35, chunk 42"
+// or, for structured formats, "guide, section Setup › Install, chunk 3".
 func Locator(d store.Document) string {
 	s := d.Metadata["source"]
+	if sec := d.Metadata["section"]; sec != "" {
+		s += ", section " + sec
+	}
 	if p := d.Metadata["pages"]; p != "" {
 		if strings.Contains(p, "-") {
 			s += ", pages " + p

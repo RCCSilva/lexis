@@ -5,6 +5,7 @@ go 1.27
 require (
 	github.com/mark3labs/mcp-go v1.2.1
 	github.com/philippgille/chromem-go v0.7.0
+	golang.org/x/net v0.61.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

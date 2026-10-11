@@ -10,7 +10,7 @@ import (
 	"github.com/rafael/lexis/internal/library"
 )
 
-const citationInstruction = `Use ONLY the passages below to answer. For every claim, include an inline citation [N] and name the source and pages shown in the passage header.
+const citationInstruction = `Use ONLY the passages below to answer. For every claim, include an inline citation [N] and name the source and the pages or section shown in the passage header.
 Do not use outside knowledge. If the passages don't contain the answer, say so.
 If a passage looks cut off, call get_chunk with its source and chunk number (neighbors=1) to read the surrounding text.
 
