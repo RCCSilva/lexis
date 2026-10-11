@@ -10,8 +10,8 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 
-	"github.com/rafael/lexis/internal/extract"
-	"github.com/rafael/lexis/internal/extract/section"
+	"github.com/RCCSilva/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract/section"
 )
 
 // Extractor splits HTML on its h1 to h4 headings. Navigation, page chrome,

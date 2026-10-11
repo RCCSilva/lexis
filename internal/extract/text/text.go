@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rafael/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract"
 )
 
 // Extractor reads a file as a single unpaged, unlabelled page.

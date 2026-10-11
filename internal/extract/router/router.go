@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/rafael/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract"
 )
 
 // Router implements extract.Extractor by dispatching on file extension.

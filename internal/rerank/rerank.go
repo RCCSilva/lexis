@@ -3,7 +3,7 @@ package rerank
 import (
 	"context"
 
-	"github.com/rafael/lexis/internal/store"
+	"github.com/RCCSilva/lexis/internal/store"
 )
 
 // Reranker reorders search results by relevance to the query.

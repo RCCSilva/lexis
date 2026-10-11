@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/RCCSilva/lexis/internal/library"
 	mcpgo "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/rafael/lexis/internal/library"
 )
 
 const citationInstruction = `Use ONLY the passages below to answer. For every claim, include an inline citation [N] and name the source and the pages or section shown in the passage header.

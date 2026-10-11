@@ -3,7 +3,7 @@ package chunk
 import (
 	"context"
 
-	"github.com/rafael/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract"
 )
 
 // Chunk is a piece of text derived from one or more document pages.

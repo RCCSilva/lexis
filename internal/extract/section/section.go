@@ -4,7 +4,7 @@ package section
 import (
 	"strings"
 
-	"github.com/rafael/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract"
 )
 
 // Separator joins the headings of a section's path in its label.

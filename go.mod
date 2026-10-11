@@ -1,4 +1,4 @@
-module github.com/rafael/lexis
+module github.com/RCCSilva/lexis
 
 go 1.27
 

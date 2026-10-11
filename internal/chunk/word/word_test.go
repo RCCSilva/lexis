@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rafael/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract"
 )
 
 func words(n int, prefix string) string {

@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/rafael/lexis/internal/store"
+	"github.com/RCCSilva/lexis/internal/store"
 )
 
 func TestTokenize(t *testing.T) {

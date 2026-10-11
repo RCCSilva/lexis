@@ -8,17 +8,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rafael/lexis/config"
-	"github.com/rafael/lexis/internal/chunk/word"
-	"github.com/rafael/lexis/internal/embed/ollama"
-	"github.com/rafael/lexis/internal/extract/html"
-	"github.com/rafael/lexis/internal/extract/markdown"
-	"github.com/rafael/lexis/internal/extract/pdftotext"
-	"github.com/rafael/lexis/internal/extract/router"
-	"github.com/rafael/lexis/internal/extract/text"
-	"github.com/rafael/lexis/internal/library"
-	"github.com/rafael/lexis/internal/mcp"
-	chromemstore "github.com/rafael/lexis/internal/store/chromem"
+	"github.com/RCCSilva/lexis/config"
+	"github.com/RCCSilva/lexis/internal/chunk/word"
+	"github.com/RCCSilva/lexis/internal/embed/ollama"
+	"github.com/RCCSilva/lexis/internal/extract/html"
+	"github.com/RCCSilva/lexis/internal/extract/markdown"
+	"github.com/RCCSilva/lexis/internal/extract/pdftotext"
+	"github.com/RCCSilva/lexis/internal/extract/router"
+	"github.com/RCCSilva/lexis/internal/extract/text"
+	"github.com/RCCSilva/lexis/internal/library"
+	"github.com/RCCSilva/lexis/internal/mcp"
+	chromemstore "github.com/RCCSilva/lexis/internal/store/chromem"
 )
 
 func main() {

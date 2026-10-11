@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/rafael/lexis/internal/store"
+	"github.com/RCCSilva/lexis/internal/store"
 )
 
 const (

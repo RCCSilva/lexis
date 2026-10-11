@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/RCCSilva/lexis/internal/store"
 	chromemgo "github.com/philippgille/chromem-go"
-	"github.com/rafael/lexis/internal/store"
 )
 
 const collectionName = "lexis"

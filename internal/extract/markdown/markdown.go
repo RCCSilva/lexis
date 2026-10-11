@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rafael/lexis/internal/extract"
-	"github.com/rafael/lexis/internal/extract/section"
+	"github.com/RCCSilva/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/extract/section"
 )
 
 var (

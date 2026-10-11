@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rafael/lexis/internal/chunk"
-	"github.com/rafael/lexis/internal/embed"
-	"github.com/rafael/lexis/internal/extract"
-	"github.com/rafael/lexis/internal/rerank"
-	"github.com/rafael/lexis/internal/store"
+	"github.com/RCCSilva/lexis/internal/chunk"
+	"github.com/RCCSilva/lexis/internal/embed"
+	"github.com/RCCSilva/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/rerank"
+	"github.com/RCCSilva/lexis/internal/store"
 )
 
 // Library orchestrates ingestion and search across pluggable providers.

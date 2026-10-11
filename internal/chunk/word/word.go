@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/rafael/lexis/internal/chunk"
-	"github.com/rafael/lexis/internal/extract"
+	"github.com/RCCSilva/lexis/internal/chunk"
+	"github.com/RCCSilva/lexis/internal/extract"
 )
 
 // Chunker splits pages into overlapping word-based chunks.
