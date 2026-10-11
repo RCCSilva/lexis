@@ -106,7 +106,7 @@ func extractors() *router.Router {
 
 func buildLibrary(cfg *config.Config) (*library.Library, error) {
 	ext := extractors()
-	chk := word.New(cfg.Chunker.Size, cfg.Chunker.Overlap)
+	chk := word.New(cfg.Chunker.Size, cfg.Chunker.Overlap, cfg.Chunker.MaxChars)
 	emb := ollama.New(cfg.Embedder.Model, cfg.Embedder.URL)
 	st, err := chromemstore.New(cfg.Store.Path, cfg.Embedder.Model, cfg.Embedder.URL)
 	if err != nil {

@@ -10,12 +10,16 @@ import (
 
 // Chunker splits pages into overlapping word-based chunks.
 type Chunker struct {
-	Size    int // words per chunk
-	Overlap int // words shared between consecutive chunks
+	Size     int // words per chunk
+	Overlap  int // words shared between consecutive chunks
+	MaxChars int // upper bound on characters per chunk; 0 means no bound
 }
 
-func New(size, overlap int) *Chunker {
-	return &Chunker{Size: size, Overlap: overlap}
+// New returns a chunker of up to size words, bounded by maxChars characters.
+// The bound matters for dense text such as coordinate tables, where a window
+// of words can hold far more tokens than prose and overflow the embedder.
+func New(size, overlap, maxChars int) *Chunker {
+	return &Chunker{Size: size, Overlap: overlap, MaxChars: maxChars}
 }
 
 type wordWithPage struct {
@@ -60,10 +64,16 @@ func (c *Chunker) window(pages []extract.Page) []chunk.Chunk {
 		return nil
 	}
 
-	step := c.Size - c.Overlap
 	var chunks []chunk.Chunk
-	for start := 0; start < len(words); start += step {
-		end := min(start+c.Size, len(words))
+	for start := 0; start < len(words); {
+		end, chars := start, 0
+		for end < len(words) && end-start < c.Size {
+			chars += len(words[end].word) + 1
+			if c.MaxChars > 0 && chars > c.MaxChars && end > start {
+				break
+			}
+			end++
+		}
 		slice := words[start:end]
 
 		texts := make([]string, len(slice))
@@ -81,6 +91,8 @@ func (c *Chunker) window(pages []extract.Page) []chunk.Chunk {
 		if end == len(words) {
 			break
 		}
+		// Advance, keeping the overlap but always making progress.
+		start = max(end-c.Overlap, start+1)
 	}
 	return chunks
 }

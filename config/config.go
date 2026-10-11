@@ -33,6 +33,7 @@ type ChunkerConfig struct {
 	Strategy string `yaml:"strategy"` // "word"
 	Size     int    `yaml:"size"`
 	Overlap  int    `yaml:"overlap"`
+	MaxChars int    `yaml:"max_chars"` // 0 = no limit
 }
 
 type RerankerConfig struct {
@@ -106,6 +107,7 @@ func defaults() *Config {
 			Strategy: "word",
 			Size:     800,
 			Overlap:  125,
+			MaxChars: 3200,
 		},
 		Reranker: RerankerConfig{
 			Enabled: false,

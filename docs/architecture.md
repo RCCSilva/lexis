@@ -51,5 +51,6 @@ The tokenizer keeps references such as `4-2-1` whole, so literal lookups work. S
 
 ## Limits
 
+- Ollama rejects an embedding input over 2048 tokens. Words are a poor proxy for tokens (prose runs near 3 characters per token, coordinate tables worse), so chunks are also bounded by `chunker.max_chars`.
 - Ollama rejects an embedding batch over 2048 tokens. The PDF extractor collapses runs of `.`, `_` and `-` (index dot leaders) because each character becomes its own token.
 - The reranker has an interface but no implementation.

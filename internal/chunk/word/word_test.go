@@ -18,7 +18,7 @@ func words(n int, prefix string) string {
 }
 
 func TestChunkSpansPageBreaks(t *testing.T) {
-	c := New(6, 2)
+	c := New(6, 2, 0)
 	chunks, err := c.Chunk(context.Background(), []extract.Page{
 		{Number: 1, Text: words(4, "a")},
 		{Number: 2, Text: words(4, "b")},
@@ -35,7 +35,7 @@ func TestChunkSpansPageBreaks(t *testing.T) {
 }
 
 func TestChunkNeverMixesSections(t *testing.T) {
-	c := New(10, 2)
+	c := New(10, 2, 0)
 	chunks, err := c.Chunk(context.Background(), []extract.Page{
 		{Label: "A", Text: words(3, "a")},
 		{Label: "B", Text: words(25, "b")},
@@ -61,5 +61,37 @@ func TestChunkNeverMixesSections(t *testing.T) {
 	// A fits in one chunk, B needs ceil((25-2)/8)=3 windows, C one.
 	if got := strings.Join(labels, ""); got != "ABBBC" {
 		t.Fatalf("labels = %s, want ABBBC", got)
+	}
+}
+
+func TestChunkBoundsCharacters(t *testing.T) {
+	c := New(100, 2, 20)
+	chunks, err := c.Chunk(context.Background(), []extract.Page{
+		{Text: words(30, "abcd")}, // 4 chars plus a space each
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(chunks) < 2 {
+		t.Fatalf("got %d chunks, want the char bound to split the text", len(chunks))
+	}
+	for i, ch := range chunks {
+		if len(ch.Text) > 20 {
+			t.Errorf("chunk %d has %d chars, want <= 20", i, len(ch.Text))
+		}
+	}
+	// Overlap keeps the last two words of one chunk at the start of the next.
+	first := strings.Fields(chunks[0].Text)
+	if len(first) != 4 || chunks[1].Text[:4] != "abcd" {
+		t.Errorf("unexpected chunking: %q", chunks[0].Text)
+	}
+}
+
+func TestChunkAlwaysProgresses(t *testing.T) {
+	// Overlap as large as the window must not loop forever.
+	c := New(4, 4, 0)
+	chunks, err := c.Chunk(context.Background(), []extract.Page{{Text: words(10, "w")}})
+	if err != nil || len(chunks) == 0 {
+		t.Fatalf("chunks = %d, err = %v", len(chunks), err)
 	}
 }
