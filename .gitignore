@@ -1,1 +1,25 @@
+# Compiled binary
 /lexis
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries and coverage
+*.test
+*.out
+coverage.*
+!coverage.go
+*.coverprofile
+profile.cov
+
+# Go workspace
+go.work
+go.work.sum
+
+# Secrets
+.env
+
+# Claude Code local settings
+.claude/
