@@ -21,7 +21,7 @@ const (
 	maxNeighbors = 3
 )
 
-// Serve starts the MCP stdio server exposing search_books, get_chunk and
+// Serve starts the MCP stdio server exposing search_documents, get_chunk and
 // list_sources via lib.
 func Serve(lib *library.Library, topK int, citationEnforcement bool) error {
 	s := server.NewMCPServer("lexis", "1.1.0",
@@ -29,8 +29,8 @@ func Serve(lib *library.Library, topK int, citationEnforcement bool) error {
 	)
 
 	s.AddTool(
-		mcpgo.NewTool("search_books",
-			mcpgo.WithDescription("Search the personal book and document collection for relevant passages. Combines semantic similarity with keyword matching, so literal references such as rule numbers also work. Use this whenever the user asks about a topic that may be covered in their documents."),
+		mcpgo.NewTool("search_documents",
+			mcpgo.WithDescription("Search the user's ingested documents (PDF, Markdown, HTML, text) for relevant passages. Combines semantic similarity with keyword matching, so literal references such as rule numbers also work. Use this whenever the user asks about a topic that may be covered in their documents."),
 			mcpgo.WithString("query",
 				mcpgo.Required(),
 				mcpgo.Description("Search query to find relevant passages"),
@@ -119,7 +119,7 @@ func Serve(lib *library.Library, topK int, citationEnforcement bool) error {
 
 	s.AddTool(
 		mcpgo.NewTool("list_sources",
-			mcpgo.WithDescription("List the names of all ingested documents, usable as the source filter of search_books."),
+			mcpgo.WithDescription("List the names of all ingested documents, usable as the source filter of search_documents."),
 		),
 		func(ctx context.Context, _ mcpgo.CallToolRequest) (*mcpgo.CallToolResult, error) {
 			sources, err := lib.Sources(ctx)

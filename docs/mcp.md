@@ -16,7 +16,7 @@ Other clients: run `/absolute/path/to/lexis mcp` as a stdio server. Restart the 
 
 | Tool | Parameters | Returns |
 |---|---|---|
-| `search_books` | `query`, `source?`, `top_k?` (1-20) | Passages with source, location, chunk number and match type. |
+| `search_documents` | `query`, `source?`, `top_k?` (1-20) | Passages with source, location, chunk number and match type. |
 | `get_chunk` | `source`, `chunk`, `neighbors?` (0-3) | One chunk and its neighbours, for results that look cut off. |
 | `list_sources` | none | Valid values for `source`. |
 
